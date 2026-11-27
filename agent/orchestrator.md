@@ -54,8 +54,11 @@ One function at a time. Never two workers at once.
    that function as `stuck` with the reason, and run `make full` again.
 2. Commit `agent/state.json` ("Update agent state").
 3. `git -c push.negotiate=true push -u origin agent-work`.
-4. If no pull request from `agent-work` to `main` is open, open a draft one titled
-   "Agent work" with `gh pr create --draft`. Keep the body to what's in it: matched functions,
+4. If no pull request from `agent-work` to `main` is open
+   (`gh api "repos/{owner}/{repo}/pulls?head=jamescoward:agent-work&state=open"`), open a
+   draft one titled "Agent work" with
+   `gh api repos/{owner}/{repo}/pulls -f title='Agent work' -f head=agent-work -f base=main -f body='...' -F draft=true`
+   (GraphQL-based `gh pr` commands may be blocked in cloud sessions). Keep the body to what's in it: matched functions,
    NON_MATCHING blocks, skipped functions and why.
 5. Reply with a short summary: functions tried, matched, NON_MATCHING, stuck, skipped, which
    worker model got each, and anything a person needs to look at.
