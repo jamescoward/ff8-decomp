@@ -5,7 +5,8 @@
 #   R2_ENDPOINT           https://<account_id>.r2.cloudflarestorage.com
 #   R2_BUCKET             bucket name
 #   FF8_DISC_PREFIX       key prefix holding the disc image(s), e.g. "ff8/"
-#                         Every .bin/.img/.iso/.cue under it is copied into rom/.
+#                         Every .bin/.img/.iso/.cue/.7z/.zip under it is copied into rom/,
+#                         and archives are unpacked there.
 #                         Disc 1 (SLUS-00892) is required; extract checks the SHA1.
 #   AWS_ACCESS_KEY_ID     R2 access key
 #   AWS_SECRET_ACCESS_KEY R2 secret key
@@ -23,7 +24,7 @@ SUDO=""
 if [ "$(id -u)" != "0" ]; then SUDO="sudo"; fi
 
 $SUDO apt-get update -qq
-$SUDO apt-get install -y -qq binutils-mipsel-linux-gnu cpp make python3-venv cmake g++ >/dev/null
+$SUDO apt-get install -y -qq binutils-mipsel-linux-gnu cpp make python3-venv cmake g++ p7zip-full >/dev/null
 
 git submodule update --init --recursive --depth 1
 chmod +x tools/gcc-2.7.2-cdk/cc1 tools/gcc-2.8.0-psx/cc1 tools/objdiff/objdiff 2>/dev/null || true
@@ -35,7 +36,14 @@ if ! ls rom/*.bin rom/*.img rom/*.iso >/dev/null 2>&1; then
     AWS_DEFAULT_REGION=auto /tmp/awscli-venv/bin/aws s3 cp \
         "s3://${R2_BUCKET}/${FF8_DISC_PREFIX}" rom/ \
         --recursive --endpoint-url "$R2_ENDPOINT" \
-        --exclude "*" --include "*.bin" --include "*.img" --include "*.iso" --include "*.cue"
+        --exclude "*" --include "*.bin" --include "*.img" --include "*.iso" --include "*.cue" \
+        --include "*.7z" --include "*.zip"
+    # Unpack archives flat into rom/; extract finds Disc 1 by its SHA1, whatever the names.
+    for archive in rom/*.7z rom/*.zip; do
+        [ -e "$archive" ] || continue
+        7z e -y -orom "$archive" >/dev/null
+        rm -f "$archive"
+    done
 fi
 
 # venv, extract (SHA1-checked), split, build, assets, expected, verify
