@@ -39,10 +39,16 @@ if ! ls rom/*.bin rom/*.img rom/*.iso >/dev/null 2>&1; then
         --exclude "*" --include "*.bin" --include "*.img" --include "*.iso" --include "*.cue" \
         --include "*.7z" --include "*.zip"
     # Unpack archives flat into rom/; extract finds Disc 1 by its SHA1, whatever the names.
-    for archive in rom/*.7z rom/*.zip; do
-        [ -e "$archive" ] || continue
-        7z e -y -orom "$archive" >/dev/null
-        rm -f "$archive"
+    # Repeat until none are left, so an archive inside an archive (a .7z wrapped in a .zip) works.
+    for pass in 1 2 3; do
+        found=0
+        for archive in rom/*.7z rom/*.zip; do
+            [ -e "$archive" ] || continue
+            found=1
+            7z e -y -orom "$archive" >/dev/null
+            rm -f "$archive"
+        done
+        [ "$found" = 1 ] || break
     done
 fi
 
