@@ -251,7 +251,44 @@ static s32 func_801A7878(EffectEntity *arg0) {
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A7964);
 
-INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A79A0);
+void func_801A79A0(EffectEntity *arg0) {
+    func_801A722C_arg0 *child;
+    EffectModel *model;
+    s32 count;
+    s32 i;
+    s32 angle;
+    s16 radius;
+
+    if (arg0->unk024 < 21) {
+        count = D_801E3D48[arg0->unk024];
+        model = arg0->unk014;
+        for (i = 0; i < count; i++) {
+            angle = rand() & 0xFFF;
+            radius = ((rand() % 384 + 0x380) * model->unk086) / 4096;
+            child = effectSpawnTask(&D_801EC688, func_801A70A0, 112, arg0);
+            child->unk068 = rand() & 0x1;
+            child->unk01C += rsin(angle) * radius / 4096;
+            child->unk020 += rcos(angle) * radius / 4096;
+            child->unk01E = 0;
+            child->unk030.vx = child->unk030.vy = child->unk030.vz = model->unk086;
+        }
+        count = D_801E3D68[arg0->unk024];
+        for (i = 0; i < count; i++) {
+            angle = rand() & 0xFFF;
+            radius = ((rand() % 384 + 0x380) * model->unk086) / 4096;
+            child = effectSpawnTask(&D_801EC688, func_801A6F20, 112, arg0);
+            child->unk068 = rand() & 0x1;
+            child->unk01C += rsin(angle) * radius / 4096;
+            child->unk020 += rcos(angle) * radius / 4096;
+            radius = effectModelBottom(arg0);
+            child->unk01E = radius * (rand() & 0xFFF) / 4096;
+            child->unk030.vx = child->unk030.vy = child->unk030.vz = model->unk086 - model->unk086 * (rand() & 0x7FF) / 4096;
+        }
+    } else {
+        arg0->flags |= EFFECT_FLAG_STOP;
+        arg0->pc++;
+    }
+}
 
 void func_801A7CC4(void) {
 }
