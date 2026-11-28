@@ -9,6 +9,8 @@ u8 *func_800C0134(void);
  * @brief Battle animation part lists.
  */
 
+void func_800C2AB0(struct BattleEffectSlot *slot, s32 arg1);
+
 /** @brief Hand one animation part, stride 0x18, to the model renderer. */
 void func_800BFE1C(void *part);
 

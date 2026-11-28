@@ -1,13 +1,30 @@
 #include "common.h"
 #include "battle.h"
 #include "psxsdk/libgte.h"
+#include "effect.h"
 #include "battle/bc_object8.h"
+#include "battle/bc_object11.h"
 #include "battle/bc_object12.h"
+#include "battle/bc_object13.h"
 #include "battle/bc_object9.h"
 
-extern u8 D_800F1A5C[];
-extern u8 D_800F1A54[];
-s32 func_800C0CB8(s32, s32);
+#define EFFECT_STRUCT_FLAG_UNK01 0x1
+#define EFFECT_STRUCT_FLAG_UNK02 0x2
+#define EFFECT_STRUCT_FLAG_UNK04 0x4
+#define EFFECT_STRUCT_FLAG_UNK08 0x8
+#define EFFECT_STRUCT_FLAG_UNK40 0x40
+#define FUNC_800C26B0_SLOT_FLAG_UNK08 0x8
+
+extern BattleEffectSlot *D_800F1A54;
+extern u8 *D_800F1A58;
+extern EffectStruct *D_800F1A5C;
+extern BattleEffectSlot *D_800F1A60;
+extern u8 *D_800F1A68;
+extern u8 D_800E3F52;
+s32 func_800C0CB8(BattleEffectSlot *, s32);
+s32 func_800C112C(s16);
+void func_800C15EC(s16, s32);
+s32 func_800C197C(s32, u8 **);
 void func_800C29C4(s32, s32);
 s32 func_800BD3A0(void);
 void func_800BD230(void);
@@ -229,13 +246,11 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C0CB8);
  * @return Resolved pointer from table lookup.
  */
 s32 func_800C0D00(s32 a0) {
-    s32 ptr;
-    s32 base;
-    *(u8 *)(*(s32 *)D_800F1A5C) = a0;
-    ptr = *(s32 *)(*(s32 *)D_800F1A54 + 0x64);
+    u16 *table;
+    D_800F1A5C->unk0 = a0;
+    table = D_800F1A54->mesh->unk00C;
     a0 &= 0xFF;
-    base = *(s32 *)(ptr + 0xC);
-    return base + *(u16 *)(base + a0 * 2);
+    return (s32)table + table[a0];
 }
 
 /**
@@ -250,17 +265,16 @@ s32 func_800C0D00(s32 a0) {
  * @return Processed command byte or fallback value.
  */
 s32 func_800C0D3C(void) {
-    s32 base = (s32)D_800F1A5C;
-    u8 *ptr = *(u8 **)base;
-    if (ptr[3] != 0) {
-        if (func_800C0CB8(*(s32 *)D_800F1A54, ptr[3]) != 0) {
-            u8 *ptr2 = *(u8 **)base;
-            s32 val = ptr2[3];
-            ptr2[3] = 0;
+    EffectStruct *ptr = D_800F1A5C;
+    if (ptr->unk3 != 0) {
+        if (func_800C0CB8(D_800F1A54, ptr->unk3) != 0) {
+            EffectStruct *ptr2 = D_800F1A5C;
+            s32 val = ptr2->unk3;
+            ptr2->unk3 = 0;
             return val;
         }
     }
-    return (u8)func_800B5604(*(u8 **)D_800F1A54);
+    return (u8)func_800B5604(D_800F1A54);
 }
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C0DB0);
@@ -277,7 +291,71 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C22A8);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C2528);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C26B0);
+// The script address is kept as an integer because func_800C2CBC takes and returns it that way.
+void func_800C26B0(BattleEffectSlot *arg0) {
+    SVECTOR sp10;
+    u16 *table;
+    s32 cursor;
+    s32 start;
+    EffectStruct *entity;
+    u16 flags;
+
+    D_800F1A54 = arg0;
+    D_800F1A58 = arg0->unk06C;
+    entity = arg0->unk074;
+    D_800F1A5C = entity;
+    table = arg0->mesh->unk00C;
+    if (entity->unk2B != 0 && !(arg0->unk02 & FUNC_800C26B0_SLOT_FLAG_UNK08)) {
+        start = (s32)table + table[entity->unk2B];
+        D_800F1A68 = entity->unk30;
+        func_800C2CBC(start, func_800C197C, func_800C112C, func_800C15EC);
+    }
+    D_800F1A68 = D_800F1A5C->unk4;
+    do {
+        entity = D_800F1A5C;
+        table = arg0->mesh->unk00C;
+        start = (s32)table + table[entity->unk0];
+        cursor = start + entity->unk2E;
+        if (entity->unk2C & EFFECT_STRUCT_FLAG_UNK01) {
+            entity->unk2C &= ~EFFECT_STRUCT_FLAG_UNK01;
+            cursor = func_800C2CBC(cursor, func_800C197C, func_800C112C, func_800C15EC);
+            flags = D_800F1A5C->unk2C;
+            if (!(flags & EFFECT_STRUCT_FLAG_UNK01)) {
+                if (!(flags & EFFECT_STRUCT_FLAG_UNK02)) {
+                    if (func_800BD06C(D_800F1A54) != 0) {
+                        func_800BD0B4(D_800F1A54, *D_800F1A58);
+                        D_800F1A5C->unk2C |= EFFECT_STRUCT_FLAG_UNK02;
+                    }
+                }
+            }
+        } else {
+            if (func_800BD06C(D_800F1A54) != 0) {
+                func_800BC7D4(D_800F1A54);
+                D_800F1A5C->unk2C = (D_800F1A5C->unk2C | EFFECT_STRUCT_FLAG_UNK04) & ~EFFECT_STRUCT_FLAG_UNK08;
+            } else {
+                D_800F1A5C->unk2C &= ~EFFECT_STRUCT_FLAG_UNK04;
+            }
+            if (!(D_800F1A5C->unk2C & EFFECT_STRUCT_FLAG_UNK08)) {
+                if (D_800F1A5C->unk1 == 0) {
+                    cursor = func_800C2CBC(cursor, func_800C197C, func_800C112C, func_800C15EC);
+                } else {
+                    D_800F1A5C->unk1--;
+                }
+            }
+        }
+    } while (cursor == 0);
+    start = (s32)table + table[D_800F1A5C->unk0];
+    D_800F1A5C->unk2E = cursor - start;
+    if (D_800F1A5C->unk3 != 0 && (D_800F1A5C->unk2C & EFFECT_STRUCT_FLAG_UNK40)) {
+        func_800C2AB0(D_800F1A54, D_800F1A5C->unk3);
+    }
+    if (D_800E3F52 != 0) {
+        func_800B3960(D_800F1A60, 0xF1, 0, &sp10);
+        func_800C48A8(D_800F1A60, D_800F1A60->unk4 == 0, 0, &sp10);
+        D_800E3F52 = 0;
+    }
+    D_800F1A5C->unk2A++;
+}
 
 
 

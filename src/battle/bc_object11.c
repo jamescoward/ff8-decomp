@@ -65,12 +65,12 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BC420);
  * Calls func_800BC420 with entity base + 0x60. If the word at
  * entity + 0x78 is non-null, also calls func_800BC420 with that pointer.
  *
- * @param entity Pointer to entity data.
+ * @param slot Entity whose animations are stepped.
  */
-void func_800BC7D4(u8 *entity) {
-    func_800BC420(entity + 0x60);
-    if (*(u8 **)(entity + 0x78) != NULL) {
-        func_800BC420(*(u8 **)(entity + 0x78));
+void func_800BC7D4(BattleEffectSlot *slot) {
+    func_800BC420(slot->unk060);
+    if (slot->unk078 != NULL) {
+        func_800BC420((u8 *)slot->unk078);
     }
 }
 
@@ -120,14 +120,14 @@ s32 func_800BD040(s32 a0, s32 a1) {
  * pointer and its data at +0xC. Then always calls func_800BCA3C with
  * entity + 0x60 and entity + 0x6C.
  *
- * @param entity Pointer to entity data.
+ * @param slot Entity whose animations are checked.
  */
-void func_800BD06C(u8 *entity) {
-    u8 *ptr = *(u8 **)(entity + 0x78);
+s32 func_800BD06C(BattleEffectSlot *slot) {
+    u8 *ptr = (u8 *)slot->unk078;
     if (ptr != NULL) {
         func_800BCA3C(ptr, ptr + 0xC);
     }
-    func_800BCA3C(entity + 0x60, entity + 0x6C);
+    return func_800BCA3C(slot->unk060, slot->unk06C);
 }
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BD0B4);
