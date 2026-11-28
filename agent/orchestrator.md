@@ -35,7 +35,7 @@ Do up to **5 functions** this run (fewer if the session is running long). For ea
    worker's `permuter/<name>/base.c` and diff yourself, write a concrete hint (which construct
    the compiler wants, what to change), and run one more worker round with `sonnet` and the
    hint. If the diff is 3 or less after that, you may let it run
-   `timeout 600 ./permute.sh --run -j2 <name>` once.
+   `timeout 600 ./permute.sh --run -j2 --asm-dir <folder> <name>` once.
 5. On `matched`: review the change by `agent/review.md`. If it fails review, send it back to
    the worker once with the reason; if it fails again, revert `src/` and treat it as stuck.
    If it passes, commit it (see Committing).

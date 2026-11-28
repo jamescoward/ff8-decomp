@@ -19,7 +19,8 @@ The fork rules at the top of AGENTS.md apply.
    same source file for matched neighbours: they show the structs, types and style in use.
    For effect overlays, search the other `src/effect/` files for a function with the same shape;
    many effect overlays share code, and a matched twin is the fastest route.
-2. `./permute.sh <name>` (add `--psyq 4.3` if the file is in `PSYQ43_SRCS` in the Makefile).
+2. `./permute.sh --asm-dir <folder> <name>`. Always pass the folder: overlays share function
+   names. The script finds the source file and reads the compiler settings from the Makefile.
 3. Edit `permuter/<name>/base.c`, run `./permuter/<name>/diff.sh`, repeat.
 4. Get the structure right first (control flow, calls, types). Only reach for statement order,
    temporaries or register tricks when the diff is a handful of instructions.

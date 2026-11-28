@@ -226,8 +226,8 @@ setup: mkpsxiso
 	$(PYTHON) -m pip install -r requirements.txt
 	$(MAKE) extract
 	$(MAKE) split
-	$(MAKE) build
 	$(MAKE) build-assets
+	$(MAKE) build
 	$(MAKE) expected
 	$(MAKE) verify
 	
