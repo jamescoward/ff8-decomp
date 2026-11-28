@@ -371,8 +371,6 @@ void *func_800B853C(void *task) {
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B8564);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B8644);
-
 /**
  * @brief Initialize a linked list structure and clear data entries.
  *
@@ -711,13 +709,7 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B91E4);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B921C);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B9290);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B94E0);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B9518);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B953C);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B96EC);
 
@@ -733,8 +725,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BA640);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BA874);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BA9FC);
-
 /**
  * @brief Call func_800B2B68 with D_800F0830.
  */
@@ -747,8 +737,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BAAC8);
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BABC0);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BAD28);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800BAE08);
 
 /**
  * @brief Clear the active byte of entries matching a given ID.

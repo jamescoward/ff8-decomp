@@ -107,19 +107,9 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D85B4);
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D868C);
 
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8734);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D87B8);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D87E8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D88A4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D88C4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D88E4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8918);
 
 /**
  * @brief Set bit 14 (0x4000) of the scratchpad control halfword at 0x1F8003AE.
@@ -147,13 +137,9 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8AB0);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8B4C);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8C18);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8CB4);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8D7C);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8DE4);
 
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object19", func_800D8E88);
