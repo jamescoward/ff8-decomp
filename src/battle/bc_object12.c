@@ -61,8 +61,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF168);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF308);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF3D8);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF444);
 
 
@@ -74,15 +72,7 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF888);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF92C);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF95C);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF9CC);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BF9EC);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFA58);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFBA8);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFC14);
 
@@ -90,14 +80,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFDA0);
 
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFE1C);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFEC8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFEF8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800BFF38);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C0098);
 
 /**
  * @brief Call func_800BFE1C for each of count entries at stride 0x18.
@@ -136,11 +118,7 @@ u8 *func_800C0134(void) {
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C0178);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C01A4);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C02D4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C03DC);
 
 /**
  * @brief Clear 9 halfwords in a 3x3 structure.
@@ -287,10 +265,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C15EC);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C197C);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C22A8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C2528);
-
 // The script address is kept as an integer because func_800C2CBC takes and returns it that way.
 void func_800C26B0(BattleEffectSlot *arg0) {
     SVECTOR sp10;
@@ -361,8 +335,6 @@ void func_800C26B0(BattleEffectSlot *arg0) {
 
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C29C4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C2A18);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object12", func_800C2A38);
 

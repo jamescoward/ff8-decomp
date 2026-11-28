@@ -54,10 +54,6 @@ typedef struct {
 
 #define FUNC_800C8E54_FLAG_8000 0x8000
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C7294); /* 0x58 */
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C72EC); /* 0x68 */
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C7354); /* 0xF8 */
 
 /**
