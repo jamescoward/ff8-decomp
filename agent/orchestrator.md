@@ -83,18 +83,24 @@ One function at a time. Never two workers at once.
    for review rejections. Commit `agent/state.json` and `agent/pilot.md` together
    ("Update agent state").
 3. `git -c push.negotiate=true push -u origin agent-work`.
-4. Open or update the draft pull request from `agent-work` to `main`, titled "Agent work".
-   Use the GitHub tools the session has (the GitHub MCP pull request tools, or
+4. Open a pull request from `agent-work` to `main`, titled "Agent work <date>", not as a
+   draft. Use the GitHub tools the session has (the GitHub MCP pull request tools, or
    `gh api repos/{owner}/{repo}/pulls`; GraphQL-based `gh pr` commands may be blocked).
-   If one is already open, add this run's section to its body instead of replacing earlier
-   runs. The person merging must understand the code without being a C expert, so each run's
-   section says, for each function, in plain English:
+   If one is still open from an earlier run (its merge failed), add this run's section to its
+   body instead. A person reads it afterwards without being a C expert, so for each function
+   the body says in plain English:
    - what it seems to do (no name suggestions),
    - anything unusual about the C: a cast or odd construct the match needs, a new struct
      view, a shared header it changed,
    - what review found and fixed or let through, and why.
    Then list NON_MATCHING blocks, and skipped or stuck functions with the reason.
-5. Reply with a short summary: functions tried, matched, NON_MATCHING, stuck, skipped, which
+5. Merge the pull request into `main` with the merge method `merge`, so each function keeps
+   its own commit, and pass the SHA you pushed as the expected head. Merge only when
+   `make full` passed in step 1 on exactly what you pushed and every change in it went
+   through review. If this run committed nothing but `agent/state.json` and `agent/pilot.md`,
+   merge it all the same. If the merge fails (a conflict, or `main` moved), leave the pull
+   request open and say so in the reply; the next run merges `main` in and tries again.
+6. Reply with a short summary: functions tried, matched, NON_MATCHING, stuck, skipped, which
    worker model got each, and anything a person needs to look at.
 
 ## Committing
@@ -104,5 +110,6 @@ One function at a time. Never two workers at once.
   NON_MATCHING block: "Add NON_MATCHING C for func_800B49D8".
 - No match statuses in the message, no AI attribution lines, as AGENTS.md says.
 - Never commit anything under `rom/`, `original/`, `asm/`, `build/`, `expected/` or `permuter/`.
-- Never push to `main`, and never force-push or rewrite history that's already pushed.
+- Never push to `main`: changes reach it only by merging the pull request in Finish. Never
+  force-push or rewrite history that's already pushed.
 - Never commit `emu/` or a memory card or savestate.
