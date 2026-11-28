@@ -1,0 +1,91 @@
+# From power-on to a random battle on the world map outside Balamb Garden, for a save
+# made at the Garden's front gate (first block on the card). Frames count vsyncs.
+# Skip the opening movie, then Continue, slot 1, first save.
+2700 tap START
+2760 tap CROSS
+3300 tap CROSS
+3550 tap CROSS
+3800 tap CROSS
+4050 tap CROSS
+4500 shot
+# Walk out of the gate onto the world map, then back and forth until a battle starts (about 5900).
+4510 hold DOWN
+5340 release DOWN
+5340 hold UP
+5580 release UP
+5580 hold DOWN
+5820 release DOWN
+6000 shot
+# Squall's first turn: Draw, from the first enemy, the first spell, Cast.
+6740 tap DOWN
+6770 tap CROSS
+6800 tap CROSS
+6850 tap CROSS
+6900 tap DOWN
+6950 tap CROSS
+7000 tap CROSS
+7100 shot
+# Then Attack every turn until the battle is won, and through the results screens.
+7400 tap CROSS
+7400 shot
+7440 tap CROSS
+7480 tap CROSS
+7520 tap CROSS
+7560 tap CROSS
+7600 tap CROSS
+7640 tap CROSS
+7680 tap CROSS
+7720 tap CROSS
+7760 tap CROSS
+7800 tap CROSS
+7800 shot
+7840 tap CROSS
+7880 tap CROSS
+7920 tap CROSS
+7960 tap CROSS
+8000 tap CROSS
+8040 tap CROSS
+8080 tap CROSS
+8120 tap CROSS
+8160 tap CROSS
+8200 tap CROSS
+8200 shot
+8240 tap CROSS
+8280 tap CROSS
+8320 tap CROSS
+8360 tap CROSS
+8400 tap CROSS
+8440 tap CROSS
+8480 tap CROSS
+8520 tap CROSS
+8560 tap CROSS
+8600 tap CROSS
+8600 shot
+8640 tap CROSS
+8680 tap CROSS
+8720 tap CROSS
+8760 tap CROSS
+8800 tap CROSS
+8840 tap CROSS
+8880 tap CROSS
+8920 tap CROSS
+8960 tap CROSS
+9000 tap CROSS
+9000 shot
+9040 tap CROSS
+9080 tap CROSS
+9120 tap CROSS
+9160 tap CROSS
+9200 tap CROSS
+9240 tap CROSS
+9280 tap CROSS
+9320 tap CROSS
+9360 tap CROSS
+9400 tap CROSS
+9400 shot
+9440 tap CROSS
+9480 tap CROSS
+9520 tap CROSS
+9560 tap CROSS
+9600 tap CROSS
+9700 quit
