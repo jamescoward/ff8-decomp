@@ -2,6 +2,7 @@
 #define BATTLE_BC_OBJECT14_H
 
 #include "common.h"
+#include "battle.h"
 
 void func_800C65A8(void);
 
@@ -12,6 +13,8 @@ void func_800C65A8(void);
 
 /** @brief Clear @c D_800F1B90 and register the callback with mode 1. */
 void func_800C5304(s32 a0, s32 a1);
+
+s32 func_800C5A34(BattleEffectSlot *arg0, s32 arg1, s32 arg2);
 
 /** @brief Look up a word from the @c D_800E662C array. */
 s32 func_800C6B1C(s32 idx);
