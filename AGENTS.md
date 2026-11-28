@@ -51,9 +51,12 @@ matched ones if you plan to send work upstream.
 **Agent loop.** `agent/` and `tools/agent/` hold an unattended loop that matches functions (see
 `agent/README.md`). Inside that loop, and only there:
 
-- The agent commits to the `agent-work` branch on its own and never to `main`. The person who
-  merges the `agent-work` pull request is the one who must understand the code, as the Git
-  rules below require.
+- The agent commits to the `agent-work` branch on its own and never directly to `main`. At the
+  end of a run it merges its own `agent-work` pull request into `main`, but only after Opus has
+  reviewed every change (`agent/review.md`) and `make full` reports Match. Each pull request
+  says in plain English what changed, so a person can follow it afterwards and revert what
+  they disagree with. This replaces, inside the loop only, the Git rule below that the person
+  who commits must understand the code.
 - The permuter may run without asking, at most `-j2` under `timeout 600`.
 - The naming rules don't change: nothing but locals gets a name. The agent writes what it
   thinks a function does into `agent/state.json` notes, without suggesting names, for a person

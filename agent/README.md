@@ -3,8 +3,12 @@
 A scheduled task runs `agent/orchestrator.md` in a cloud container. The orchestrator picks
 functions with `tools/agent/pick.py`, hands each one to a worker (`agent/worker.md`), checks
 the result with `tools/agent/lint.py` and `agent/review.md`, and commits to the `agent-work`
-branch. A person reviews the draft pull request from `agent-work` before anything reaches
-`main`.
+branch. At the end of the run it opens a pull request from `agent-work` that explains each
+change in plain English, and merges it once `make full` reports Match.
+
+The scheduled task wakes a relay session, which starts the run in a fresh session on the
+ff8-decomp environment with the repository checked out. A scheduled task can't pick the
+repository itself, which is why the relay is there.
 
 | File | Purpose |
 |------|---------|
