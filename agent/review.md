@@ -1,6 +1,7 @@
 # Review: accept or reject a match
 
-Run by the orchestrator on every change before it's committed. A byte match is necessary
+Run by the orchestrator on every change before it's committed. The orchestrator runs on Opus
+and does the review itself; it never hands review to a worker. A byte match is necessary
 but not enough: the code also has to be something a person would have written, and something
 a port can build on.
 
@@ -10,7 +11,13 @@ a port can build on.
 2. Built objects for the touched files deleted, then `make verify-<binary>` reports `Match`.
 3. Warning count for each touched file is no higher than before (AGENTS.md, "Compiler warnings").
 4. `git diff --stat` touches only the source file, its header, the Makefile `EFFECTS` list if
-   needed, and `agent/state.json`.
+   needed, and `agent/state.json`. Other files are allowed only when the match needs them
+   (a shared struct field, a callee's prototype in its owner's header); check each one.
+5. If the change touches a header that the effect overlays include (`include/battle.h`,
+   `include/effect.h`, `include/battle/*.h`, `include/effect/lib/*.h`, `include/common.h`),
+   split every effect overlay and build them all before committing:
+   `make split EFFECTS=all && make verify EFFECTS=all`.
+   Every binary must report Match. This takes about ten minutes.
 
 ## Judgement (read the diff)
 
@@ -26,8 +33,21 @@ Reject, and send back to the worker with the reason, when you see:
 - `volatile`, `goto` chains, or empty `do {} while (0)` without an obvious reason.
 - A countdown loop without a comment saying the direction is needed for the match.
 - Comments that repeat the code, note match status, or say where a value is used.
+- Any new documentation: Doxygen blocks, `@brief`, comments on prototypes.
+- Invented names for struct fields, union members, flags or parameters. Placeholders keep the
+  offset visible (`unk1A`). Union members may name the shape of the data (`word`, `sv`).
+- Private structs placed next to the function instead of at the top of the file.
+- `void *` or `s32` in a new prototype where the callee's asm shows a struct or pointer type.
 
 Lint warnings are prompts for this read, not automatic rejections.
+
+## Fixing instead of sending back
+
+When the only problems are ones you can fix in a few lines without changing what the code
+does (deleting a comment, moving a struct to the top of the file, renaming a field to its
+placeholder, giving a prototype its real type), fix them yourself, check the match again, and
+count it as a rejection in the run log with what you fixed. Send the work back to the worker
+only when the fix needs another round of matching.
 
 ## NON_MATCHING candidates
 

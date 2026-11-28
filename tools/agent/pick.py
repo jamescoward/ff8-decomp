@@ -13,11 +13,18 @@ Only the effect overlays listed in EFFECTS in the Makefile are split, so the
 rest have no asm yet. Their functions come out with "needs_split": true and
 go after every function whose asm already exists in the same tier.
 
+Functions whose asm doesn't look like a whole function are left out of
+"next" and listed by "suspects": it reads saved registers it never set, has
+an epilogue without a prologue (or the reverse), or doesn't end in a jump.
+These are usually a piece of a larger function that splat cut wrongly, or
+hand-written asm. Either way no worker can match them as they stand.
+
 Usage:
     python3 tools/agent/pick.py next [--count N] [--max-attempts N]
     python3 tools/agent/pick.py record KEY --status STATUS [--model M]
                                        [--attempts N] [--best N] [--note TEXT]
     python3 tools/agent/pick.py stats
+    python3 tools/agent/pick.py suspects
 
 STATUS is one of: matched, nonmatching, stuck, skipped, in_progress.
 """
@@ -93,6 +100,48 @@ def size_of(folder, name):
     return 4 * sum(1 for line in text.splitlines() if re.match(r"\s*/\* [0-9A-F]+ ", line))
 
 
+INS_RE = re.compile(r"/\* [0-9A-F]+ [0-9A-F]+ [0-9A-F]+ \*/\s+(\S+)\s*(.*)")
+SAVED_RE = re.compile(r"\$(s[0-7]|fp)\b")
+NO_DEST = ("sw", "sh", "sb", "swl", "swr", "beq", "bne", "beqz", "bnez", "bgez", "bltz",
+           "blez", "bgtz", "jr", "jalr")
+
+
+def suspect_reasons(folder, name):
+    path = os.path.join(ROOT, folder, name + ".s")
+    if not os.path.exists(path):
+        return []
+    ins = []
+    for line in open(path, errors="replace"):
+        m = INS_RE.search(line)
+        if m and not m.group(1).startswith("."):
+            ins.append((m.group(1), m.group(2)))
+    if not ins:
+        return []
+    reasons = []
+    prologue = any(op == "addiu" and a.startswith("$sp, $sp, -") for op, a in ins[:12])
+    epilogue = any(op == "addiu" and re.match(r"\$sp, \$sp, 0x", a) for op, a in ins)
+    if epilogue and not prologue:
+        reasons.append("epilogue without prologue")
+    if prologue and not epilogue:
+        reasons.append("prologue without epilogue")
+    if not prologue:
+        written = set()
+        for op, a in ins:
+            ops = [x.strip() for x in a.split(",")]
+            if not any(SAVED_RE.search(o) for o in ops):
+                continue
+            dest = [] if op in NO_DEST else SAVED_RE.findall(ops[0])
+            srcs = [r for o in (ops if op in NO_DEST else ops[1:]) for r in SAVED_RE.findall(o)]
+            unset = [r for r in srcs if r not in written]
+            if unset:
+                reasons.append("reads $%s before setting it" % unset[0])
+                break
+            written.update(dest)
+    if not any(op in ("jr", "j", "b") for op, a in ins[-2:]):
+        reasons.append("doesn't end in a jump")
+    return reasons
+
+
 def backlog():
     items = []
     for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "src")):
@@ -132,6 +181,8 @@ def cmd_next(args):
             continue
         item["size"] = size_of(item["folder"], item["name"])
         item["needs_split"] = item["size"] is None
+        if not args.include_suspects and suspect_reasons(item["folder"], item["name"]):
+            continue
         item["tier"] = tier_of(item["folder"])
         item["previous"] = entry or None
         candidates.append(item)
@@ -166,6 +217,13 @@ def cmd_record(args):
     print(json.dumps({args.key: entry}, indent=1))
 
 
+def cmd_suspects(args):
+    for item in backlog():
+        reasons = suspect_reasons(item["folder"], item["name"])
+        if reasons:
+            print("%s: %s" % (item["key"], "; ".join(reasons)))
+
+
 def cmd_stats(args):
     state = load_state()
     items = backlog()
@@ -188,6 +246,7 @@ def main():
     n = sub.add_parser("next")
     n.add_argument("--count", type=int, default=1)
     n.add_argument("--max-attempts", type=int, default=3)
+    n.add_argument("--include-suspects", action="store_true")
     r = sub.add_parser("record")
     r.add_argument("key")
     r.add_argument("--status", required=True, choices=STATUSES)
@@ -196,8 +255,9 @@ def main():
     r.add_argument("--best", type=int)
     r.add_argument("--note")
     sub.add_parser("stats")
+    sub.add_parser("suspects")
     args = p.parse_args()
-    {"next": cmd_next, "record": cmd_record, "stats": cmd_stats}[args.cmd](args)
+    {"next": cmd_next, "record": cmd_record, "stats": cmd_stats, "suspects": cmd_suspects}[args.cmd](args)
 
 
 if __name__ == "__main__":
