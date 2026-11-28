@@ -43,7 +43,10 @@ INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5B2C);
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5C14);
 
-INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5DB8);
+void func_801A5DB8(EffectEntity *arg0) {
+    func_801A5820(arg0, 1);
+    arg0->pc++;
+}
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5DF4);
 

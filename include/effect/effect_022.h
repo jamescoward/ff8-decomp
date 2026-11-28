@@ -33,6 +33,7 @@ extern s32 D_801ED348;
 extern s32 D_801F3108;
 extern EffectRender D_801F3118;
 
+void func_801A5820(EffectEntity *arg0, s32 arg1);
 s32 func_801A6AC0(EffectEntity *arg0);
 s32 func_801A722C(EffectEntity *arg0);
 s32 func_801A7580(EffectEntity *arg0);
