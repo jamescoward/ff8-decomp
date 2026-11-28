@@ -17,14 +17,26 @@ If the merge conflicts, abort it, push nothing, report the conflict, and stop.
 ## 2. Check the baseline
 
 If `asm/` or `build/` is missing, the setup script didn't run: run
-`bash tools/agent/setup-cloud.sh`. Then `make verify`. If the baseline doesn't match, report
+`bash tools/agent/setup-cloud.sh`. Setup splits from `main`, so `agent-work` may list effect
+overlays in `EFFECTS` that have no asm yet. Split those:
+
+```
+for o in $(sed -n 's/^EFFECTS ?= //p' Makefile); do [ -d asm/ovl/$o ] || make split-$o; done
+```
+
+Then `make verify`. If the baseline doesn't match, report
 which binaries mismatch and stop. Never start from a broken build.
 
 ## 3. Work through functions
 
 Do up to **5 functions** this run (fewer if the session is running long). For each:
 
-1. `python3 tools/agent/pick.py next` gives the function. Mark it:
+1. `python3 tools/agent/pick.py next` gives the function. If it says `"needs_split": true`,
+   its effect overlay isn't split yet: add the binary to `EFFECTS` in the Makefile, run
+   `make split-<binary>` and `make verify-<binary>`. If that matches, commit the Makefile
+   ("Build <binary> by default") and run `pick.py next` again for the function and its size.
+   If it doesn't, revert the Makefile, record the function as `skipped` with the reason, and
+   pick again. Then mark the function:
    `python3 tools/agent/pick.py record <key> --status in_progress`.
 2. Choose the worker model:
    - `haiku` when the size is 0x100 bytes or less and it has no previous attempts,

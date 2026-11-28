@@ -9,6 +9,10 @@ Order follows the port: the core game first, effect overlays last. Inside a
 tier, functions are taken smallest first, and an overlay that is nearly
 finished goes before one that has barely started.
 
+Only the effect overlays listed in EFFECTS in the Makefile are split, so the
+rest have no asm yet. Their functions come out with "needs_split": true and
+go after every function whose asm already exists in the same tier.
+
 Usage:
     python3 tools/agent/pick.py next [--count N] [--max-attempts N]
     python3 tools/agent/pick.py record KEY --status STATUS [--model M]
@@ -127,13 +131,16 @@ def cmd_next(args):
         if status in ("stuck", "nonmatching") and entry.get("attempts", 0) >= args.max_attempts:
             continue
         item["size"] = size_of(item["folder"], item["name"])
+        item["needs_split"] = item["size"] is None
         item["tier"] = tier_of(item["folder"])
         item["previous"] = entry or None
         candidates.append(item)
-    # Never-tried before retried, then tier, then nearly-finished overlays, then small first.
+    # Never-tried before retried, then tier, then overlays already split, then
+    # nearly-finished overlays, then small first.
     candidates.sort(key=lambda i: (
         i["previous"] is not None,
         i["tier"],
+        i["needs_split"],
         remaining[i["binary"]],
         i["size"] if i["size"] is not None else 1 << 30,
         i["key"],
@@ -166,6 +173,9 @@ def cmd_stats(args):
     statuses = Counter(e.get("status") for e in state.values())
     print("backlog by tier (0 core ... 9 effects):", dict(sorted(by_tier.items())))
     print("backlog total:", len(items))
+    unsplit = Counter(i["binary"] for i in items
+                      if not os.path.exists(os.path.join(ROOT, i["folder"], i["name"] + ".s")))
+    print("functions in overlays not split yet: %d (%d overlays)" % (sum(unsplit.values()), len(unsplit)))
     print("agent results:", dict(statuses))
     attempts = [e.get("attempts", 0) for e in state.values() if e.get("status") == "matched"]
     if attempts:
