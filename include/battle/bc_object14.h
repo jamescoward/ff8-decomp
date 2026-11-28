@@ -16,6 +16,8 @@ void func_800C5304(s32 a0, s32 a1);
 
 s32 func_800C5A34(BattleEffectSlot *arg0, s32 arg1, s32 arg2);
 
+void func_800C6DEC(BattleEffectSlot *arg0, SVECTOR *arg1);
+
 /** @brief Look up a word from the @c D_800E662C array. */
 s32 func_800C6B1C(s32 idx);
 
