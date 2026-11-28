@@ -61,7 +61,7 @@ The project has technical debt where symbols are defined multiple times and some
 
 Example: `func_8009A000` is one function in the world overlay and a different one in the battle overlay.
 
-* Project only has 100% matching functions, we don't do the #ifdef NONMATCHING pattern.
+* Project only has 100% matching functions. The one exception in this fork is the guarded `#ifdef NON_MATCHING` form described in AGENTS.md ("This fork"), which keeps the `INCLUDE_ASM` in its `#else` so the normal build still matches.
 
 * Code should be portable. Meaning, no magic offsets or addresses that would make the game crash if a struct were to change or a symbol were to move.
 

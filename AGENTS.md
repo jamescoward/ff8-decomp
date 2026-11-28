@@ -7,7 +7,57 @@ wins.
 This is a matching decompilation of Final Fantasy VIII (PS1, USA, `SLUS_008.92`). The C has
 to compile back to the original binaries byte for byte. A function counts as done only when
 it matches 100% and `make verify` reports `Match` for every target. A near match is not a
-result: the function stays `INCLUDE_ASM` until it matches.
+result: the function stays `INCLUDE_ASM` until it matches, apart from the guarded
+`NON_MATCHING` form below.
+
+## This fork
+
+This fork works towards a native port (New 3DS first), so it adds goals the upstream project
+doesn't have. Where these rules disagree with the rest of this file or with CONTRIBUTING.md,
+these win.
+
+**Matching is still the goal.** `make verify` must report `Match` on every commit, on every
+branch. What changes is what counts as progress for a function that won't match.
+
+**NON_MATCHING, guarded.** A port needs every function in C, matched or not. When a function
+has had a full matching attempt and won't match, complete C that behaves the same as the asm
+may go in like this, and only like this:
+
+```c
+#ifdef NON_MATCHING
+s32 func_800B49D8(s32 arg0) {
+    ...
+}
+#else
+INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B49D8);
+#endif
+```
+
+The normal build uses the asm and still matches. `make NON_MATCHING=1` builds the C, and must
+compile and link. A NON_MATCHING function is still unfinished: turning it into a real match is
+always welcome. Upstream doesn't accept this pattern, so keep these commits separate from
+matched ones if you plan to send work upstream.
+
+**Portable code.** Every rule in CONTRIBUTING.md about portability is a hard rule here. Also:
+
+- Game code reaches hardware (GPU, GTE, SPU, CD, pads, memory card, scratchpad, timers) only
+  through Psy-Q SDK calls and macros from `include/psxsdk/`. The port replaces the SDK, so
+  anything that skips it will have to be found and rewritten later.
+- No raw PSX addresses (`0x80XXXXXX`, `0x1F80XXXX`) in C, cast or not. Use a symbol.
+- No pointer arithmetic with raw offsets where a struct field belongs.
+- Don't rely on pointers being 32 bits wide when storing them in integers. Where the original
+  does this and the match needs it, use the existing integer types and leave a short comment.
+
+**Agent loop.** `agent/` and `tools/agent/` hold an unattended loop that matches functions (see
+`agent/README.md`). Inside that loop, and only there:
+
+- The agent commits to the `agent-work` branch on its own and never to `main`. The person who
+  merges the `agent-work` pull request is the one who must understand the code, as the Git
+  rules below require.
+- The permuter may run without asking, at most `-j2` under `timeout 600`.
+- The naming rules don't change: nothing but locals gets a name. The agent writes what it
+  thinks a function does into `agent/state.json` notes, without suggesting names, for a person
+  to verify in the running game.
 
 ## Commands
 
@@ -130,7 +180,7 @@ order matters to what the loop does, or when no ascending form matches. In the s
 in a comment that the direction is needed for the match.
 
 `./permute.sh --run <func>` starts the permuter, which can use every core for a long time.
-Ask before running it.
+Ask before running it (the agent loop has its own limit, see "This fork").
 
 ## Review your change before calling it done
 
@@ -141,7 +191,8 @@ Review your whole diff against CONTRIBUTING.md and fix whatever breaks a rule. T
 `make full`. If a rule can't be kept without breaking the match, keep the match and say which
 rule and why.
 
-The rules agents break most often (details in CONTRIBUTING.md): no NONMATCHING, no build
+The rules agents break most often (details in CONTRIBUTING.md): NON_MATCHING only in the
+guarded form above, no build
 hacks, no inline asm or register pinning, no raw offsets or addresses, no unnecessary casts,
 one declaration per symbol, private functions `static`, named single-bit flags, 1998-style C,
 and no comments that repeat the code or note status.
@@ -163,7 +214,8 @@ Also:
 - No comments that say where a value is read or written ("read by func_X", "set in the
   battle loop").
 - No K&R-style function definitions.
-- No handwritten `.s` files. A function stays `INCLUDE_ASM` until its C matches.
+- No handwritten `.s` files. A function stays `INCLUDE_ASM` until its C matches (or, in the
+  guarded NON_MATCHING form, keeps it in the `#else`).
 - Never put an `extern` inside a function body. It usually means the owner's header isn't
   included, so include it instead.
 - No alignment padding: one space, never extra spaces to line up `=`, types, trailing
