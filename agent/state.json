@@ -1,1 +1,89 @@
-{}
+{
+ "asm/ovl/battle/nonmatchings/bc_object10/func_800B49D8": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "haiku",
+  "notes": [
+   "Looks up the battle slot indexed by the record's s16 at +8; if the slot's 0x2 flag is set and func_800C5A34 returns nonzero, returns 0; otherwise calls the record's optional callback with the index, sets record byte 1 to 0xFF and returns 2."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/battle/nonmatchings/bc_object12/func_800BFF38": {
+  "attempts": 1,
+  "model": "sonnet",
+  "notes": [
+   "Not a whole function: a fragment of the function starting at func_800BFE1C (prologue there, epilogue inside func_800C0098). Needs the splat symbols merged into one function before it can be matched."
+  ],
+  "status": "skipped",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/battle/nonmatchings/bc_object12/func_800C26B0": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "sonnet",
+  "notes": [
+   "Runs one step of a battle entity's script: resolves the cursor from the slot's mesh table, runs commands through func_800C2CBC with three callbacks, steps and checks animations, saves the cursor offset, then calls func_800C2AB0 on a flagged path, fires a pending event and increments a per-entity counter."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/battle/nonmatchings/bc_object15/func_800C8E54": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "sonnet",
+  "notes": [
+   "Builds a position vector from one of four sources picked by the s16 at +0xE (slot position, copied vector, offset looked up from a slot, or slot matrix applied to a vector plus translation), allocates an entry from the D_800FB408 pool with a task from D_800EC96C, fills it and returns 2."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/battle/nonmatchings/bc_object22/func_800E1480": {
+  "attempts": 0,
+  "notes": [
+   "Not a whole function: starts mid-function (sb using $s1 set by the previous symbol) and holds another function's epilogue. Needs a splat config change."
+  ],
+  "status": "skipped",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/battle/nonmatchings/bc_object9/func_800B3534": {
+  "attempts": 1,
+  "best_diff": 19,
+  "model": "haiku",
+  "notes": [
+   "Reads $sp directly (clears memory from arg0+0x20 up to the stack pointer, compared on the low 24 bits); uses $t0/$t1 with no frame, so it looks hand-written and can't be expressed in C without inline asm."
+  ],
+  "status": "skipped",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/effect_022/nonmatchings/effect_022/func_801A5DB8": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "haiku",
+  "notes": [
+   "Calls func_801A5820 on the entity with 1, then advances the entity's script counter (pc) by one."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/effect_022/nonmatchings/effect_022/func_801A66D4": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "sonnet",
+  "notes": [
+   "Per-frame update for a spawned effect task: adds 0x800 to a phase counter and, each time it passes 0x1000, steps two indices into the D_801AD3A8 sprite-animation table; after four steps switches to D_801AC818 and recomputes angle and offset values from the parent at +0x14."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ },
+ "asm/ovl/effect_022/nonmatchings/effect_022/func_801A79A0": {
+  "attempts": 1,
+  "best_diff": 0,
+  "model": "sonnet",
+  "notes": [
+   "While the entity's unk024 is under 21, spawns two kinds of child tasks (func_801A70A0 and func_801A6F20) around the owner's model, counts from D_801E3D48/D_801E3D68, each with a random angle, radius and 0/1 flag; the second kind also gets a random height and shrunk size. At 21 it sets EFFECT_FLAG_STOP and advances pc."
+  ],
+  "status": "matched",
+  "updated": "2026-11-28"
+ }
+}
