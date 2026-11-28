@@ -9,6 +9,8 @@ typedef struct {
     /** 0x40 */ u8 pad040[0x70 - 0x40];
 } func_801A722C_arg0;
 
+extern BattleSpriteAnim D_801AC818;
+extern BattleSpriteAnim *D_801AD3A8[];
 extern u8 D_801BA9F0;
 extern u8 D_801BB308;
 extern u8 D_801C7308;
