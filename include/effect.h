@@ -186,6 +186,8 @@ typedef struct EffectSkeleton {
 typedef struct EffectMesh {
     /* 0x00 */ EffectSkeleton *skeleton;
     /* 0x04 */ u32 *parts;
+    /* 0x08 */ u8 pad008[0xC - 0x8];
+    /* 0x0C */ u16 *unk00C;
 } EffectMesh;
 
 /**

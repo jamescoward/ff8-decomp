@@ -22,6 +22,12 @@ s32 func_800BC060(void *slot, u8 *buf, s32 mode, s32 head);
 /** @brief Step @p anim by one frame. */
 void func_800BC420(u8 *anim);
 
+void func_800BC7D4(struct BattleEffectSlot *slot);
+
+s32 func_800BD06C(struct BattleEffectSlot *slot);
+
+void func_800BD0B4(struct BattleEffectSlot *slot, u8 arg1);
+
 /** @brief Report whether @p anim can be posed at an explicit frame. */
 s32 func_800BCA3C(u8 *anim, u8 *state);
 

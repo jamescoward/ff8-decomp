@@ -4,14 +4,24 @@
 #include "effect.h"
 
 typedef struct {
-    /** 0x00 */ u8 pad000[0x30];
+    /** 0x00 */ u8 pad000[0x1C];
+    /** 0x1C */ s16 unk01C;
+    /** 0x1E */ s16 unk01E;
+    /** 0x20 */ s16 unk020;
+    /** 0x22 */ u8 pad022[0x30 - 0x22];
     /** 0x30 */ VECTOR unk030;
-    /** 0x40 */ u8 pad040[0x70 - 0x40];
+    /** 0x40 */ u8 pad040[0x68 - 0x40];
+    /** 0x68 */ s16 unk068;
+    /** 0x6A */ u8 pad06A[0x70 - 0x6A];
 } func_801A722C_arg0;
 
+extern BattleSpriteAnim D_801AC818;
+extern BattleSpriteAnim *D_801AD3A8[];
 extern u8 D_801BA9F0;
 extern u8 D_801BB308;
 extern u8 D_801C7308;
+extern u8 D_801E3D48[];
+extern u8 D_801E3D68[];
 extern u8 D_801E3D88[];
 extern u8 D_801E3DA8[];
 extern u8 *D_801E3DE0;
@@ -33,7 +43,10 @@ extern s32 D_801ED348;
 extern s32 D_801F3108;
 extern EffectRender D_801F3118;
 
+void func_801A5820(EffectEntity *arg0, s32 arg1);
 s32 func_801A6AC0(EffectEntity *arg0);
+s32 func_801A6F20(EffectEntity *arg0);
+s32 func_801A70A0(EffectEntity *arg0);
 s32 func_801A722C(EffectEntity *arg0);
 s32 func_801A7580(EffectEntity *arg0);
 void func_801A76FC(EffectEntity *arg0);

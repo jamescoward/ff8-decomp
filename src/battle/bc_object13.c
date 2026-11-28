@@ -40,7 +40,6 @@ void func_800C39F8(void);
 void func_800C3C0C(void);
 void func_800C3EFC(void);
 void func_800C3FE8(void);
-s32 func_800C2CBC(s32, void *, void *, void *);
 s32 func_800C3418(s32);
 
 /**
@@ -554,8 +553,8 @@ void func_800C47EC(s32 a0, s32 a1, s32 a2, s32 a3) {
  * @param a1 Table index.
  * @return Computed pointer as integer.
  */
-s32 func_800C4844(u8 *a0, s32 a1) {
-    u8 *base = *(u8 **)(a0 + 0x84);
+s32 func_800C4844(BattleEffectSlot *a0, s32 a1) {
+    u8 *base = a0->unk084;
     u8 *table = *(u8 **)(base + 0x28);
     u16 offset = *(u16 *)(table + a1 * 2 + 2);
     return (s32)table + offset;
@@ -572,7 +571,7 @@ s32 func_800C4844(u8 *a0, s32 a1) {
  * @param a2 Processing parameter.
  * @param a3 Processing parameter.
  */
-void func_800C4864(s32 a0, s32 a1, s32 a2, s32 a3) {
+void func_800C4864(BattleEffectSlot *a0, s32 a1, s32 a2, s32 a3) {
     s32 entry = func_800C4844(a0, a1);
     func_800C443C(entry, a2, a3);
 }
@@ -585,7 +584,7 @@ void func_800C4864(s32 a0, s32 a1, s32 a2, s32 a3) {
  * @param a2 Parameter (passed as 3rd arg to func_800C4864).
  * @param a3 Animation ID (passed to func_800C438C, result becomes 4th arg).
  */
-void func_800C48A8(s32 a0, s32 a1, s32 a2, s32 a3) {
+void func_800C48A8(BattleEffectSlot *a0, s32 a1, s32 a2, SVECTOR *a3) {
     s32 result = func_800C438C(a3);
     func_800C4864(a0, a1, a2, result);
 }

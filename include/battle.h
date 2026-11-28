@@ -834,8 +834,12 @@ typedef struct {
     u8 unk1;
     u8 unk2;
     u8 unk3;
-    u8 pad4[0x2C - 4];
+    /* 0x04 */ u8 unk4[0x2A - 4];
+    /* 0x2A */ u8 unk2A;
+    /* 0x2B */ u8 unk2B;
     u16 unk2C;
+    /* 0x2E */ u16 unk2E;
+    /* 0x30 */ u8 unk30[1];
 } EffectStruct;
 
 /**
@@ -876,7 +880,9 @@ typedef struct BattleEffectSlot {
                                         its @c 0x2C halfword carries the flags. */
     /* 0x78 */ struct EffectAttachment *unk078;
     /* 0x7C */ u32 unk07C;         /**< Bit @c n set: mesh part @c n is drawn. */
-    /* 0x80 */ u8 pad080[0x9C - 0x80];
+    /* 0x80 */ u8 pad080[0x84 - 0x80];
+    /* 0x84 */ u8 *unk084;
+    /* 0x88 */ u8 pad088[0x9C - 0x88];
 } BattleEffectSlot; /* 0x9C */
 
 /** @brief Per-entity battle records the effect overlays pose their models from. */

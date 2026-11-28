@@ -15,6 +15,40 @@
 #include "effect/effect_022_0D00.h"
 #include "effect/effect_022.h"
 
+typedef struct {
+    /** 0x00 */ u8 pad000[0x24];
+    /** 0x24 */ u16 unk024;
+    /** 0x26 */ u8 pad026[0x82 - 0x26];
+    /** 0x82 */ u16 unk082;
+    /** 0x84 */ u8 pad084[0x86 - 0x84];
+    /** 0x86 */ u16 unk086;
+} func_801A66D4_parent;
+
+typedef struct {
+    /** 0x00 */ u8 pad000[0x14];
+    /** 0x14 */ func_801A66D4_parent *unk014;
+    /** 0x18 */ u8 pad018[0x29 - 0x18];
+    /** 0x29 */ u8 unk029;
+    /** 0x2A */ u8 pad02A[0x30 - 0x2A];
+    /** 0x30 */ u16 unk030;
+    /** 0x32 */ u8 pad032[0x4C - 0x32];
+    /** 0x4C */ BattleSpriteAnim *unk04C;
+    /** 0x50 */ u8 pad050[0x6C - 0x50];
+    /** 0x6C */ BattleSpriteAnim *unk06C;
+    /** 0x70 */ BattleSpriteAnim *unk070;
+    /** 0x74 */ s16 unk074;
+    /** 0x76 */ s16 unk076;
+    /** 0x78 */ u16 unk078;
+    /** 0x7A */ u8 pad07A[0x82 - 0x7A];
+    /** 0x82 */ s16 unk082;
+    /** 0x84 */ s16 unk084;
+    /** 0x86 */ u8 pad086[0x90 - 0x86];
+    /** 0x90 */ s16 unk090;
+    /** 0x92 */ u8 pad092[0x94 - 0x92];
+    /** 0x94 */ s16 unk094;
+    /** 0x96 */ s16 unk096;
+} func_801A66D4_arg0;
+
 static void func_801A74CC(EffectEntity *arg0);
 static void func_801A764C(EffectEntity *arg0);
 static void func_801A77C8(EffectEntity *arg0);
@@ -43,7 +77,10 @@ INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5B2C);
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5C14);
 
-INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5DB8);
+void func_801A5DB8(EffectEntity *arg0) {
+    func_801A5820(arg0, 1);
+    arg0->pc++;
+}
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A5DF4);
 
@@ -58,7 +95,32 @@ INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A60B8);
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A6234);
 
-INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A66D4);
+void func_801A66D4(func_801A66D4_arg0 *arg0) {
+    func_801A66D4_parent *parent;
+
+    arg0->unk084 += 0x800;
+    if (arg0->unk084 > 0x1000) {
+        arg0->unk084 -= 0x1000;
+        arg0->unk074++;
+        arg0->unk076++;
+        if (arg0->unk074 >= 4) {
+            parent = arg0->unk014;
+            arg0->unk04C = &D_801AC818;
+            arg0->unk074 = 5;
+            arg0->unk076 = 6;
+            arg0->unk090 = 30 - parent->unk024;
+            arg0->unk082 = (arg0->unk078 - parent->unk082) & 0xFFF;
+            arg0->unk096 = arg0->unk030 - parent->unk086;
+            if (arg0->unk082 >= 0x800) {
+                arg0->unk082 -= 0x1000;
+            }
+            arg0->unk094 = 1;
+            arg0->unk029++;
+        }
+        arg0->unk06C = D_801AD3A8[arg0->unk074];
+        arg0->unk070 = D_801AD3A8[arg0->unk076];
+    }
+}
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A67E8);
 
@@ -189,7 +251,44 @@ static s32 func_801A7878(EffectEntity *arg0) {
 
 INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A7964);
 
-INCLUDE_ASM("asm/ovl/effect_022/nonmatchings/effect_022", func_801A79A0);
+void func_801A79A0(EffectEntity *arg0) {
+    func_801A722C_arg0 *child;
+    EffectModel *model;
+    s32 count;
+    s32 i;
+    s32 angle;
+    s16 radius;
+
+    if (arg0->unk024 < 21) {
+        count = D_801E3D48[arg0->unk024];
+        model = arg0->unk014;
+        for (i = 0; i < count; i++) {
+            angle = rand() & 0xFFF;
+            radius = ((rand() % 384 + 0x380) * model->unk086) / 4096;
+            child = effectSpawnTask(&D_801EC688, func_801A70A0, 112, arg0);
+            child->unk068 = rand() & 0x1;
+            child->unk01C += rsin(angle) * radius / 4096;
+            child->unk020 += rcos(angle) * radius / 4096;
+            child->unk01E = 0;
+            child->unk030.vx = child->unk030.vy = child->unk030.vz = model->unk086;
+        }
+        count = D_801E3D68[arg0->unk024];
+        for (i = 0; i < count; i++) {
+            angle = rand() & 0xFFF;
+            radius = ((rand() % 384 + 0x380) * model->unk086) / 4096;
+            child = effectSpawnTask(&D_801EC688, func_801A6F20, 112, arg0);
+            child->unk068 = rand() & 0x1;
+            child->unk01C += rsin(angle) * radius / 4096;
+            child->unk020 += rcos(angle) * radius / 4096;
+            radius = effectModelBottom(arg0);
+            child->unk01E = radius * (rand() & 0xFFF) / 4096;
+            child->unk030.vx = child->unk030.vy = child->unk030.vz = model->unk086 - model->unk086 * (rand() & 0x7FF) / 4096;
+        }
+    } else {
+        arg0->flags |= EFFECT_FLAG_STOP;
+        arg0->pc++;
+    }
+}
 
 void func_801A7CC4(void) {
 }

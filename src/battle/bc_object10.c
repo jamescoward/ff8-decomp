@@ -2,6 +2,7 @@
 #include "battle.h"
 #include "battle/bc_object9.h"
 #include "battle/bc_object10.h"
+#include "battle/bc_object14.h"
 
 extern u8 D_800EF72C[];
 extern u8 D_800F05C8[];
@@ -24,7 +25,37 @@ void func_800B8314(void);
 s32 func_8013E000(s32);
 void func_800C2B88(u8 *);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B49D8);
+// Private typedefs/structs
+typedef struct func_800B49D8_arg0 {
+    /** 0x00 */ u8 pad0[0x10];
+    /** 0x10 */ struct func_800B49D8_entry *unk10;
+} func_800B49D8_arg0;
+
+typedef struct func_800B49D8_entry {
+    /** 0x00 */ u8 unk0;
+    /** 0x01 */ u8 unk1;
+    /** 0x02 */ u8 pad2[2];
+    /** 0x04 */ void (*unk4)(s16);
+    /** 0x08 */ s16 unk8;
+} func_800B49D8_entry;
+
+s32 func_800B49D8(func_800B49D8_arg0 *arg0) {
+    func_800B49D8_entry *entry;
+    BattleEffectSlot *slot;
+
+    entry = arg0->unk10;
+    slot = &D_800EF2D0[entry->unk8];
+    if (slot->flags & BATTLE_SLOT_FLAG_UNK02) {
+        if (func_800C5A34(slot, 0x1A, 0x40) != 0) {
+            return 0;
+        }
+    }
+    if (entry->unk4 != NULL) {
+        entry->unk4(entry->unk8);
+    }
+    entry->unk1 = 0xFF;
+    return 2;
+}
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object10", func_800B4A74);
 

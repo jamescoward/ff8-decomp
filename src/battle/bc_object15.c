@@ -4,12 +4,15 @@
 #include "psxsdk/inline_c.h"
 #include "battle.h"
 #include "battle/bc_object8.h"
+#include "battle/bc_object9.h"
+#include "battle/bc_object14.h"
 #include "battle/bc_object15.h"
 
 extern BattleSpriteAnim *D_800EBF24[];
 extern u8 D_800FB408[];
 extern u8 D_800FA5F8[];
 extern u8 D_800E6658[];
+extern void *D_800EC96C[];
 
 /* GTE FLAG bits 17 and 18: divide overflow, SZ3/OTZ saturated -- out of range. */
 #define BATTLE_SPRITE_GTE_OUT_OF_RANGE ((1 << 18) | (1 << 17))
@@ -19,6 +22,37 @@ extern u8 D_800E6658[];
 #define BATTLE_SPRITE_UV_MAX 0xFF
 
 static void *func_800C97E4(BattleSpritePrim *prim, u32 *ot, s32 otShift, void *head);
+
+// Private typedefs/structs
+typedef struct {
+    /** 0x00 */ u8 pad00[0xE];
+    /** 0x0E */ s16 unkE;
+    /** 0x10 */ union {
+        BattleEffectSlot *slot;
+        SVECTOR sv;
+    } unk10;
+    /** 0x18 */ union {
+        struct {
+            s16 unk18;
+            u16 unk1A;
+        } word;
+        BattleEffectSlot *slot;
+    } unk18;
+    /** 0x1C */ s32 unk1C;
+    /** 0x20 */ s8 *unk20;
+} func_800C8E54_arg0;
+
+typedef struct {
+    /** 0x00 */ u8 pad00[0xC];
+    /** 0x0C */ u16 unkC;
+    /** 0x0E */ u8 pad0E[2];
+    /** 0x10 */ SVECTOR unk10;
+    /** 0x18 */ BattleEffectSlot *unk18;
+    /** 0x1C */ s32 unk1C;
+    /** 0x20 */ s8 *unk20;
+} func_800C8E54_entry;
+
+#define FUNC_800C8E54_FLAG_8000 0x8000
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C7354); /* 0xF8 */
 
@@ -72,7 +106,48 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C8BD4); /* 0x138 
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C8D0C); /* 0x148 */
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C8E54); /* 0x1C0 */
+s32 func_800C8E54(func_800C8E54_arg0 *arg0) {
+    BattleEffectSlot *slot;
+    SVECTOR vec;
+    func_800C8E54_entry *entry;
+
+    switch (arg0->unkE) {
+    case 1:
+        slot = arg0->unk10.slot;
+        func_800C6DEC(slot, &vec);
+        vec.pad = slot->unk026 * 125 >> 8;
+        break;
+    case 2:
+        slot = NULL;
+        vec = arg0->unk10.sv;
+        vec.pad = 0;
+        break;
+    case 3:
+        slot = arg0->unk10.slot;
+        func_800B3960(slot, arg0->unk18.word.unk18, arg0->unk18.word.unk1A & ~FUNC_800C8E54_FLAG_8000, &vec);
+        // The signed read of the flag bit is needed for the match.
+        if ((s16)arg0->unk18.word.unk1A < 0) {
+            vec.vy = 0;
+        }
+        vec.pad = 0;
+        break;
+    case 4:
+        slot = arg0->unk18.slot;
+        ApplyMatrixSV(&slot->mtx, &arg0->unk10.sv, &vec);
+        vec.vx += slot->mtx.t[0];
+        vec.vy += slot->mtx.t[1];
+        vec.vz += slot->mtx.t[2];
+        vec.pad = 0;
+        break;
+    }
+    entry = func_800B2A84(D_800FB408, D_800EC96C[arg0->unk20[3]]);
+    entry->unkC = 0;
+    entry->unk10 = vec;
+    entry->unk18 = slot;
+    entry->unk1C = arg0->unk1C;
+    entry->unk20 = arg0->unk20;
+    return 2;
+}
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C9014); /* 0xBC */
 
