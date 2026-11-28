@@ -101,9 +101,7 @@ includes (battle or effect headers) needs `make verify EFFECTS=all`.
 The Makefile is the only source of truth for how each file is built. Most files use PsyQ 4.1
 (gcc 2.7.2, `-O2 -G0`). The exceptions are listed in the Makefile: `PSYQ43_SRCS` (PsyQ 4.3,
 gcc 2.8.0), `NO_G0_SRCS`, `G4_SRCS`, `O0_SRCS`, and `NO_EXPAND_DIV` for how the assembler
-expands division in each effect overlay. `permute.sh` keeps copies of some of these lists that
-can fall behind the Makefile, so check the Makefile and pass `--psyq 4.3` yourself when the
-file is in `PSYQ43_SRCS`.
+expands division in each effect overlay. `permute.sh` reads these lists from the Makefile.
 
 When a file isn't in any list yet, the epilogue usually tells the compiler apart: PsyQ 4.1
 ends `lw ra / addiu sp / jr ra / nop`, PsyQ 4.3 ends `lw ra / nop / jr ra / addiu sp`.
@@ -160,6 +158,7 @@ When a verified name does go in:
 2. `python3 tools/m2c/m2c.py -t mipsel-gcc-c <func>.s` gives a first draft. Treat it as a
    starting point, not as the answer.
 3. `./permute.sh <func>` creates `permuter/<func>/` with `base.c`, `target.o` and `diff.sh`.
+   When several overlays have a function of that name, pass the folder with `--asm-dir`.
    Edit `base.c`, run `./permuter/<func>/diff.sh`, and repeat until it matches. Never run two
    `diff.sh` in the same directory at once; they share the compiled object.
 4. Use the same symbol names as the target asm. A different name for the same address can

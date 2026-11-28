@@ -2,7 +2,9 @@
 # Setup and optionally run decomp-permuter for a given function.
 #
 # Usage:
-#   ./permute.sh <function_name>              # auto-finds .s, infers source
+#   ./permute.sh <function_name>              # auto-finds .s and source
+#   ./permute.sh --asm-dir <folder> <function_name>
+#                                             # needed when overlays share the name
 #   ./permute.sh --run [-j N] <function_name> # setup + run permuter
 #
 # Example:
@@ -24,18 +26,34 @@ AS="mipsel-linux-gnu-as"
 
 ASFLAGS="-march=r3000 -mabi=32 -EL -no-pad-sections -O0 -Iinclude"
 
-# Sources compiled without -G0 (must match Makefile NO_G0_SRCS)
-NO_G0_SRCS="src/main.c"
+# Per-file compiler settings, read from the Makefile so they can't fall behind it.
+makefile_var() {
+    awk -v name="$1" '
+        !found && $0 ~ "^" name "[ \t]*:?=" { found = 1; sub("^[^=]*=", "") }
+        found {
+            line = $0
+            sub("#.*$", "", line)
+            more = (line ~ /\\[ \t]*$/)
+            sub("\\\\[ \t]*$", "", line)
+            printf "%s ", line
+            if (!more) exit
+        }' "${SCRIPT_DIR}/Makefile"
+}
+NO_G0_SRCS="$(makefile_var NO_G0_SRCS)"
+G4_SRCS="$(makefile_var G4_SRCS)"
+O0_SRCS="$(makefile_var O0_SRCS)"
+PSYQ43_SRCS="$(makefile_var PSYQ43_SRCS)"
+NO_EXPAND_DIV="$(makefile_var NO_EXPAND_DIV)"
+EXPAND_DIV_SRCS="$(makefile_var EXPAND_DIV_SRCS)"
 
-# Sources compiled with -G4 (must match Makefile G4_SRCS)
-G4_SRCS="src/game.c"
-
-# Sources compiled with -O0 (must match Makefile O0_SRCS)
-O0_SRCS="src/btl_transition.c"
-
-
-# Sources compiled with PsyQ 4.3 (must match Makefile PSYQ43_SRCS)
-PSYQ43_SRCS="src/snd_init.c src/snd_dma.c src/snd_voice.c src/snd_bank.c src/snd_param.c src/snd_note.c src/snd_track.c"
+in_list() {
+    local item="$1" entry
+    shift
+    for entry in $*; do
+        [[ "${entry}" == "${item}" ]] && return 0
+    done
+    return 1
+}
 
 SRC_FILE=""
 ASM_SUBDIR=""
@@ -80,19 +98,26 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "${FUNC_NAME}" ]]; then
-    echo "Usage: $0 [--run] [-j N] [--psyq 4.1|4.3] <function_name>"
+    echo "Usage: $0 [--run] [-j N] [--asm-dir <folder>] [--src <file.c>] [--psyq 4.1|4.3] <function_name>"
     exit 1
 fi
 
-# Auto-find the .s file if --asm-dir not given
+# Auto-find the .s file if --asm-dir not given. Overlays can share function
+# names, so refuse to guess when there is more than one.
 if [[ -z "${ASM_SUBDIR}" ]]; then
-    S_FILE="$(find asm -name "${FUNC_NAME}.s" 2>/dev/null | head -1)"
-    if [[ -z "${S_FILE}" ]]; then
+    S_FILES="$(find asm -path '*/nonmatchings/*' -name "${FUNC_NAME}.s" 2>/dev/null | sort)"
+    if [[ -z "${S_FILES}" ]]; then
         echo "Error: ${FUNC_NAME}.s not found under asm/"
         exit 1
     fi
-    ASM_SUBDIR="$(dirname "${S_FILE}")"
+    if [[ "$(echo "${S_FILES}" | wc -l)" -gt 1 ]]; then
+        echo "Error: ${FUNC_NAME}.s exists in more than one place; pass --asm-dir with one of:"
+        echo "${S_FILES}" | xargs -n1 dirname | sed 's/^/  /'
+        exit 1
+    fi
+    ASM_SUBDIR="$(dirname "${S_FILES}")"
 fi
+ASM_SUBDIR="${ASM_SUBDIR%/}"
 
 TARGET_ASM="${ASM_SUBDIR}/${FUNC_NAME}.s"
 if [[ ! -f "${TARGET_ASM}" ]]; then
@@ -100,21 +125,26 @@ if [[ ! -f "${TARGET_ASM}" ]]; then
     exit 1
 fi
 
-# Auto-detect source file from asm path if --src not given
+# Find the source file holding this function's INCLUDE_ASM if --src not given
 if [[ -z "${SRC_FILE}" ]]; then
-    C_BASENAME="$(basename "${ASM_SUBDIR}")"
-    if [[ "${ASM_SUBDIR}" == asm/ovl/* ]]; then
-        OVERLAY="$(echo "${ASM_SUBDIR}" | cut -d/ -f3)"
-        SRC_FILE="src/ovl/${OVERLAY}/${C_BASENAME}.c"
-    else
-        SRC_FILE="src/${C_BASENAME}.c"
+    SRC_FILE="$(grep -rlE "INCLUDE_ASM\(\"${ASM_SUBDIR}\", *${FUNC_NAME}\)" src 2>/dev/null | head -1 || true)"
+    if [[ -z "${SRC_FILE}" ]]; then
+        echo "Error: no INCLUDE_ASM(\"${ASM_SUBDIR}\", ${FUNC_NAME}) found under src/"
+        echo "Use --src to specify explicitly."
+        exit 1
     fi
 fi
 
 if [[ ! -f "${SRC_FILE}" ]]; then
-    echo "Error: inferred source file not found: ${SRC_FILE}"
-    echo "Use --src to specify explicitly."
+    echo "Error: source file not found: ${SRC_FILE}"
     exit 1
+fi
+
+# The binary is the overlay directory under asm/ovl/, else the main executable
+if [[ "${ASM_SUBDIR}" == asm/ovl/* ]]; then
+    BINARY="$(echo "${ASM_SUBDIR}" | cut -d/ -f3)"
+else
+    BINARY="SLUS_008.92"
 fi
 
 # Verify the permuter is available
@@ -126,12 +156,9 @@ fi
 # Auto-detect PsyQ version from source file if not specified
 if [[ -z "${PSYQ_VER}" ]]; then
     PSYQ_VER="4.1"
-    for p43 in ${PSYQ43_SRCS}; do
-        if [[ "${SRC_FILE}" == "${p43}" ]]; then
-            PSYQ_VER="4.3"
-            break
-        fi
-    done
+    if in_list "${SRC_FILE}" ${PSYQ43_SRCS}; then
+        PSYQ_VER="4.3"
+    fi
 fi
 
 # Select compiler based on PsyQ version
@@ -152,30 +179,27 @@ esac
 
 # Auto-detect compile flags based on source file
 COMPILE_FLAGS="-O2 -G0"
-for ng0 in ${NO_G0_SRCS}; do
-    if [[ "${SRC_FILE}" == "${ng0}" ]]; then
-        COMPILE_FLAGS="-O2"
-        break
-    fi
-done
-for g4 in ${G4_SRCS}; do
-    if [[ "${SRC_FILE}" == "${g4}" ]]; then
-        COMPILE_FLAGS="-O2 -G4"
-        break
-    fi
-done
-
-for o0 in ${O0_SRCS}; do
-    if [[ "${SRC_FILE}" == "${o0}" ]]; then
-        COMPILE_FLAGS="-O0 -G0"
-        ASPSX_VER="2.56"
-        break
-    fi
-done
+if in_list "${SRC_FILE}" ${NO_G0_SRCS}; then
+    COMPILE_FLAGS="-O2"
+fi
+if in_list "${SRC_FILE}" ${G4_SRCS}; then
+    COMPILE_FLAGS="-O2 -G4"
+fi
+if in_list "${SRC_FILE}" ${O0_SRCS}; then
+    COMPILE_FLAGS="-O0 -G0"
+    ASPSX_VER="2.56"
+fi
 
 ASPSX_FLAGS="--aspsx-version=${ASPSX_VER}"
 
-echo "Setting up permuter for ${FUNC_NAME} (PsyQ ${PSYQ_VER}, flags: ${COMPILE_FLAGS})..."
+# Division expansion follows the Makefile's expand_div rule
+if in_list "${SRC_FILE}" ${EXPAND_DIV_SRCS}; then
+    ASPSX_FLAGS="${ASPSX_FLAGS} --expand-div"
+elif [[ "${BINARY}" == effect_* ]] && ! in_list "${BINARY}" ${NO_EXPAND_DIV}; then
+    ASPSX_FLAGS="${ASPSX_FLAGS} --expand-div"
+fi
+
+echo "Setting up permuter for ${FUNC_NAME} (PsyQ ${PSYQ_VER}, flags: ${COMPILE_FLAGS}, maspsx: ${ASPSX_FLAGS})..."
 echo "  Source:  ${SRC_FILE}"
 echo "  Asm dir: ${ASM_SUBDIR}"
 
@@ -246,8 +270,8 @@ COMPILE_EOF
 chmod +x "${FUNC_DIR}/compile.sh"
 
 # --- diff.sh ---
-# Compiles base.c via compile.sh, then runs objdiff against target.o and
-# prints a side-by-side asm diff for this function.
+# Compiles base.c via compile.sh, then prints a side-by-side asm diff against
+# target.o for this function.
 cat > "${FUNC_DIR}/diff.sh" <<DIFF_EOF
 #!/usr/bin/env bash
 # Compile base.c and diff against target.o for ${FUNC_NAME}.
@@ -258,7 +282,7 @@ PROJECT="${SCRIPT_DIR}"
 INPUT="\${1:-\${HERE}/base.c}"
 OUT="\${HERE}/current.o"
 "\${HERE}/compile.sh" "\${INPUT}" -o "\${OUT}"
-exec python3 "\${PROJECT}/.claude/skills/objdiff/diff.py" \\
+exec python3 "\${PROJECT}/tools/diff_func.py" \\
     --target "\${HERE}/target.o" --base "\${OUT}" "${FUNC_NAME}"
 DIFF_EOF
 chmod +x "${FUNC_DIR}/diff.sh"
@@ -288,7 +312,7 @@ if grep -q "${FUNC_NAME}" "${SRC_FILE}" 2>/dev/null && \
 fi
 
 if [[ "${HAVE_DECOMP}" -eq 1 ]]; then
-    mipsel-linux-gnu-cpp -Iinclude -DPERMUTER -undef -Wall -fno-builtin -lang-c "${SRC_FILE}" > "${FUNC_DIR}/base.c.tmp"
+    ${CPP} -E -lang-c -nostdinc -Iinclude -DPERMUTER "${SRC_FILE}" > "${FUNC_DIR}/base.c.tmp"
     cp "${FUNC_DIR}/base.c.tmp" "${FUNC_DIR}/base.c"
     rm "${FUNC_DIR}/base.c.tmp"
     if [[ -f "${PERMUTER_DIR}/strip_other_fns.py" ]]; then
