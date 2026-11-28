@@ -151,8 +151,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C3014);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C3104);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C33A0);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C3418);
 
 /**
@@ -205,10 +203,6 @@ void func_800C3704(void) {
 }
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C372C);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C3898);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object13", func_800C38BC);
 
 /**
  * @brief Store a value to one of several sound parameter tables.

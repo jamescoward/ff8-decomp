@@ -20,10 +20,6 @@ extern u8 D_800E6658[];
 
 static void *func_800C97E4(BattleSpritePrim *prim, u32 *ot, s32 otShift, void *head);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C7294); /* 0x58 */
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C72EC); /* 0x68 */
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object15", func_800C7354); /* 0xF8 */
 
 /**

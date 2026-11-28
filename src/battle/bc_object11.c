@@ -33,19 +33,9 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB180);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB1B4);
 
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB1E0);
-
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB368);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB3F8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB63C);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB828);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BB9A8);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BBA54);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BBBF8);
 
@@ -345,10 +335,6 @@ INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BE89C);
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BECB0);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BEE78);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BEEC4);
-
-INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BEF14);
 
 INCLUDE_ASM("asm/ovl/battle/nonmatchings/bc_object11", func_800BEFD0);
 
