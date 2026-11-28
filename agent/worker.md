@@ -31,6 +31,24 @@ Raw addresses or offsets, inline asm, register pinning, casts that only exist to
 an `extern` inside a function, invented names for anything other than locals. If the only way
 to match needs one of these, stop and report it; the orchestrator decides.
 
+Review sends work back for these more than anything else, so get them right first time:
+
+- Struct fields, union members you add, flags and parameters get placeholders that keep the
+  offset or value visible (`unk1A`, `FUNC_800C8E54_FLAG_8000`), never names that say what you
+  think they mean (`mode`, `slot`, `id`). Union members may name the shape of the data
+  (`word`, `half`, `sv`), as existing code does.
+- Private typedefs and structs go at the top of the .c file, after the includes and existing
+  prototypes, never next to the function. Field offsets go in front: `/** 0x0E */ s16 unkE;`.
+- A prototype gets the types the callee really uses: read the callee's asm. Never `void *` or
+  `s32` as a shortcut for a pointer. Use an existing struct (`BattleEffectSlot`, `EffectEntity`)
+  when its layout fits; when it doesn't, make a view named after the function.
+- Don't add documentation of any kind: no Doxygen, no `@brief`, no comments on new prototypes.
+  A comment is only for something the code can't say, such as a cast the match needs.
+- Keep the diff to the function, its own file and its own header. Change a shared header
+  (`battle.h`, `effect.h`, or anything every effect overlay includes) only when the match
+  can't be written without it, and say so in the report.
+- Single-bit flags get placeholder `#define`s. Compare pointers against `NULL`.
+
 ## When it matches
 
 Move the code into the source file in place of the `INCLUDE_ASM`, with types and prototypes
@@ -56,4 +74,7 @@ best_diff: <instructions still different, 0 if matched>
 complete_c: yes | no   (does base.c cover the whole function?)
 where_stuck: <one or two sentences: which instructions differ and what you tried>
 purpose: <one sentence on what the function seems to do; no name suggestions>
+files: <every file you changed>
+shared_headers: yes | no   (did you change a header every effect overlay includes?)
+warnings: <file> <before> -> <after>, for each file you changed
 ```
